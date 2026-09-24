@@ -1,40 +1,41 @@
 # catia-sketch-cpp
 
-C++20 starter library for reading CATIA V5 `.CATPart` sketch data.
+C++20 parser prototype for CATIA V5 sketch entities and constraints.
 
-## Status
+## What is implemented
 
-This repository is a safe, conservative foundation. It validates the outer
-`V5_CFV2\0` signature, exposes a `std::list<Sketch>`, preserves native bytes,
-and provides typed containers for points, lines, circles, arcs, splines,
-profiles, and constraints.
+This repository now targets the core sketch extraction path required by the
+CATIA layout specification:
 
-The current parser does **not** claim to decode sketch ownership from arbitrary
-CATIA files. The CATIA layout specification identifies sketches in the outer
-`7C08`/`7C09` object graph. A sketch is emitted as typed data only after its
-object, owner record, fields, entity records, and references are all proven to
-belong to the same graph. Until that decoder is implemented, the input is
-returned as a native document payload instead of guessed geometry.
+- `Sketch` objects are emitted from native object-graph markers,
+- `2DPoint` candidates are exposed as `SketchEntity` objects,
+- `ConstraintDYS` candidates are exposed as native constraints,
+- geometry is preserved as either typed `Point2D` or `UnknownGeometry`,
+- the original CATIA payload bytes are retained for later exact decoding.
 
-The reference format is:
+This is intentionally conservative. The code does not guess unsupported geometry
+or solver semantics when the object graph is incomplete.
 
-- [`docs/layouts/catia.toml`](https://github.com/cadmpeg/cadmpeg/blob/main/docs/layouts/catia.toml)
-- [`docs/formats/catia.md`](https://github.com/cadmpeg/cadmpeg/blob/main/docs/formats/catia.md)
-- [`crates/cadmpeg-codec-catia/src/sketch.rs`](https://github.com/cadmpeg/cadmpeg/blob/main/crates/cadmpeg-codec-catia/src/sketch.rs)
+## Source references
+
+- CATIA layout table: https://github.com/cadmpeg/cadmpeg/blob/main/docs/layouts/catia.toml
+- Format document: https://github.com/cadmpeg/cadmpeg/blob/main/docs/formats/catia.md
+- Sketch transfer logic: https://github.com/cadmpeg/cadmpeg/blob/main/crates/cadmpeg-codec-catia/src/sketch.rs
 
 ## Build
 
-```sh
+```bash
 cmake -S . -B build
 cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-## Run
+## Usage
 
-```sh
+```bash
 ./build/catia-sketch-read part.CATPart
 ```
 
-The API uses `std::list` for sketches, entities, constraints, profiles, and
-native members. Unknown records remain available as byte payloads.
+The public API uses `std::list<Sketch>` for sketches, `std::list<SketchEntity>`
+for entities, and `std::list<SketchConstraint>` for constraints. The parser keeps
+raw payloads and records unresolved relations instead of fabricating values.

@@ -13,19 +13,39 @@ namespace catia {
 
 using Bytes = std::vector<std::uint8_t>;
 
-struct Vec2 { double x{}; double y{}; };
-struct Vec3 { double x{}; double y{}; double z{}; };
+struct Vec2 {
+    double x{};
+    double y{};
+};
 
-struct Point2D { Vec2 position; };
-struct Line2D { Vec2 start; Vec2 end; };
-struct Circle2D { Vec2 center; double radius{}; };
+struct Vec3 {
+    double x{};
+    double y{};
+    double z{};
+};
+
+struct Point2D {
+    Vec2 position{};
+};
+
+struct Line2D {
+    Vec2 start{};
+    Vec2 end{};
+};
+
+struct Circle2D {
+    Vec2 center{};
+    double radius{};
+};
+
 struct Arc2D {
-    Vec2 center;
+    Vec2 center{};
     double radius{};
     double start_angle{};
     double end_angle{};
     bool clockwise{};
 };
+
 struct UnknownGeometry {
     std::string native_kind;
     Bytes payload;
@@ -34,9 +54,23 @@ struct UnknownGeometry {
 using SketchGeometry = std::variant<Point2D, Line2D, Circle2D, Arc2D, UnknownGeometry>;
 
 enum class ConstraintKind {
-    Coincident, Horizontal, Vertical, Parallel, Perpendicular, Tangent,
-    Equal, Concentric, Symmetric, Distance, DistanceX, DistanceY,
-    Radius, Diameter, Angle, Fix, Unknown
+    Coincident,
+    Horizontal,
+    Vertical,
+    Parallel,
+    Perpendicular,
+    Tangent,
+    Equal,
+    Concentric,
+    Symmetric,
+    Distance,
+    DistanceX,
+    DistanceY,
+    Radius,
+    Diameter,
+    Angle,
+    Fix,
+    Unknown
 };
 
 struct ConstraintReference {
@@ -129,6 +163,7 @@ class SketchParser {
 public:
     explicit SketchParser(std::filesystem::path filename);
     [[nodiscard]] ParseResult parse(const ParseOptions& options = {}) const;
+
 private:
     std::filesystem::path filename_;
 };
